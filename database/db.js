@@ -25,11 +25,16 @@ function usersCollection() {
 
 function studentsData() {
   return client.db("form-fill-up").collection("studentsData");
+};
+
+function paymentsCollection(){
+  return client.db("form-fill-up").collection("payments");
 }
 
 module.exports = {
   connect,
   getStudentsData,
   usersCollection,
-  studentsData
+  studentsData,
+  paymentsCollection
 };

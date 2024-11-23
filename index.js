@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // * Middleware:
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://form-fill-up-f743f.web.app",
     credentials: true,
   })
 );
@@ -20,6 +20,7 @@ app.use(body_parser.json());
 
 // * Connect With mongoDb:
 db.connect();
+app.use("/api", require("./routes/routes"));
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -126,7 +127,6 @@ app.delete("/delete-user/:id", verifyJWT, verifyAdmin, async (req, res) => {
 // * To get all users api:
 app.get("/allStudents", async (req, res) => {
   const search = req.query.search;
-  console.log(search);
   const numericSearch = parseInt(search) || search;
   const query = {
     $or: [
@@ -145,11 +145,43 @@ app.get("/allStudents", async (req, res) => {
   res.send(result);
 });
 
+// * all Students:
+app.get("/students", verifyJWT, verifyAdmin, async (req, res) => {
+  const studentsData = db.studentsData();
+  const result = await studentsData.find().toArray();
+  res.send(result);
+});
+
 // * Add new Students:
 app.post("/addStudent", verifyJWT, verifyAdmin, async (req, res) => {
   const newStudent = req.body;
   const studentsData = db.studentsData();
   const result = await studentsData.insertOne(newStudent);
+  res.send(result);
+});
+
+// * To delete single student data:
+app.delete("/deleteStudent/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const studentsData = db.studentsData();
+  const result = await studentsData.deleteOne(query);
+  res.send(result);
+});
+
+// * Search Admit Card:
+app.get("/search-student", async (req, res) => {
+  const search = req.query.search;
+  const query = { board_roll: { $regex: search, $options: "i" } };
+  const studentsCollection = db.studentsData();
+  const result = await studentsCollection.find(query).toArray();
+  res.send(result);
+});
+
+// * GET PAYMENT COLLECTION DATA:
+app.get("/payment-data", async (req, res) => {
+  const paymentsCollection = db.paymentsCollection();
+  const result = await paymentsCollection.find().toArray();
   res.send(result);
 });
 
