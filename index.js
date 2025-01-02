@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // * Middleware:
 app.use(
   cors({
-    origin: "https://form-fill-up-f743f.web.app",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -146,7 +146,7 @@ app.get("/allStudents", async (req, res) => {
 });
 
 // * all Students:
-app.get("/students", verifyJWT, verifyAdmin, async (req, res) => {
+app.get("/students",  async (req, res) => {
   const studentsData = db.studentsData();
   const result = await studentsData.find().toArray();
   res.send(result);
@@ -160,6 +160,33 @@ app.post("/addStudent", verifyJWT, verifyAdmin, async (req, res) => {
   res.send(result);
 });
 
+// * To update student data:
+app.put("/updateStudent/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updateStudent = req.body;
+  const setNewStudent = {
+    $set: {
+      name: updateStudent.name,
+      father_name: updateStudent.father_name,
+      mother_name: updateStudent.mother_name,
+      board_roll: updateStudent.board_roll,
+      registration: updateStudent.registration,
+      semester: updateStudent.semester,
+      session: updateStudent.session,
+      regulation: updateStudent.regulation,
+      section: updateStudent.section,
+      shift: updateStudent.shift,
+      phone: updateStudent.phone,
+      image: updateStudent.image,
+    },
+  };
+  const studentsData = db.studentsData();
+  const result = await studentsData.updateOne(filter, setNewStudent, options);
+  res.send(result);
+});
+
 // * To delete single student data:
 app.delete("/deleteStudent/:id", verifyJWT, verifyAdmin, async (req, res) => {
   const id = req.params.id;
@@ -169,7 +196,7 @@ app.delete("/deleteStudent/:id", verifyJWT, verifyAdmin, async (req, res) => {
   res.send(result);
 });
 
-// * Search Admit Card:
+// * Search :
 app.get("/search-student", async (req, res) => {
   const search = req.query.search;
   const query = { board_roll: { $regex: search, $options: "i" } };
@@ -179,11 +206,20 @@ app.get("/search-student", async (req, res) => {
 });
 
 // * GET PAYMENT COLLECTION DATA:
-app.get("/payment-data", async (req, res) => {
+app.get("/payment-data",  async (req, res) => {
   const paymentsCollection = db.paymentsCollection();
   const result = await paymentsCollection.find().toArray();
   res.send(result);
 });
+
+// // * Search Admit Card:
+// app.get("/search-admit-card", async (req, res) => {
+//   const search = req.query.search;
+//   const query = { board_roll: { $regex: search, $options: "i" } };
+//   const paymentsCollection = db.paymentsCollection();
+//   const result = await paymentsCollection.find(query).toArray();
+//   res.send(result);
+// });
 
 app.get("/", (req, res) => {
   res.send("form fil up server is running");

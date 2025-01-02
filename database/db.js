@@ -28,7 +28,7 @@ function studentsData() {
 };
 
 function paymentsCollection(){
-  return client.db("form-fill-up").collection("payments");
+  return client.db("form-fill-up").collection("paymentsCollection");
 }
 
 module.exports = {

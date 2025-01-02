@@ -22,7 +22,7 @@ class paymentController {
         {
           mode: "0011",
           payerReference: " ",
-          callbackURL: "https://form-fill-up-server.vercel.app/api/bkash/payment/callback",
+          callbackURL: "http://localhost:5000/api/bkash/payment/callback",
           amount: amount,
           currency: "BDT",
           intent: "sale",
@@ -44,7 +44,7 @@ class paymentController {
 
     if (status === "cancel" || status === "failure") {
       return res.redirect(
-        `https://form-fill-up-f743f.web.app/paymentError?message=${status}`
+        `http://localhost:5173/paymentError?message=${status}`
       );
     }
     if (status === "success") {
@@ -59,21 +59,7 @@ class paymentController {
 
         if (data && data.statusCode === "0000") {
           const paymentData = {
-            name: studentData.name,
             board_roll: studentData.board_roll,
-            registration: studentData.registration,
-            image: studentData.image,
-            semester: studentData.semester,
-            shift: studentData.shift,
-            section: studentData.section,
-            phone: studentData.phone,
-            father_name: studentData.father_name,
-            mother_name: studentData.mother_name,
-            session: studentData.session,
-            regulation: studentData.regulation,
-            examinee_type: studentData.examinee_type,
-            department: studentData.department,
-            technology_code: "85",
             paymentID,
             trxID: data.trxID,
           };
@@ -81,24 +67,24 @@ class paymentController {
           const paymentsCollection = db.paymentsCollection();
           const result = await paymentsCollection.insertOne(paymentData);
           if (result.insertedId) {
-            const redirectURL = `https://form-fill-up-f743f.web.app/paymentSuccess?payment=${JSON.stringify(
+            const redirectURL = `http://localhost:5173/paymentSuccess?payment=${JSON.stringify(
               data.trxID
             )}`;
 
             return res.redirect(redirectURL);
           } else {
             return res.redirect(
-              `https://form-fill-up-f743f.web.app/paymentError?message=Failed to save database`
+              `http://localhost:5173/paymentError?message=Failed to save database`
             );
           }
         } else {
           return res.redirect(
-            `https://form-fill-up-f743f.web.app/paymentError?message=${data.statusMessage}`
+            `http://localhost:5173/paymentError?message=${data.statusMessage}`
           );
         }
       } catch (error) {
         return res.redirect(
-          `https://form-fill-up-f743f.web.app/paymentError?message=${error.message}`
+          `http://localhost:5173/paymentError?message=${error.message}`
         );
       }
     }
